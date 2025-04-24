@@ -1,10 +1,22 @@
 'use client';
 
-import { forwardRef, useEffect, useRef } from 'react';
+import { forwardRef, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { GameState, Sprite } from '../types/game';
 
+
+interface Message {
+  text: string;
+  sender: 'user' | 'bot';
+}
+
 const GameCanvas = forwardRef<HTMLCanvasElement>((_, ref) => {
+  const [showChat, setShowChat] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  
   const stateRef = useRef<GameState>({
     player: { x: 150, y: 150, width: 16, height: 16 },
     gridSize: 7,
@@ -20,6 +32,40 @@ const GameCanvas = forwardRef<HTMLCanvasElement>((_, ref) => {
   ]);
 
   const router = useRouter();
+
+  const handleSendMessage = async () => {
+    if (!input.trim()) return;
+
+    const userMessage: Message = { text: input, sender: 'user' };
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:8000/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: input,
+          conversation_id: conversationId
+        }),
+      });
+
+      const data = await response.json();
+      setConversationId(data.conversation_id);
+      setMessages(prev => [...prev, { text: data.response, sender: 'bot' }]);
+    } catch (error) {
+      console.error('Error:', error);
+      setMessages(prev => [...prev, { 
+        text: 'Sorry, I encountered an error. Please try again.', 
+        sender: 'bot' 
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     const canvas = (ref as React.MutableRefObject<HTMLCanvasElement>).current;
@@ -92,7 +138,7 @@ const GameCanvas = forwardRef<HTMLCanvasElement>((_, ref) => {
           if (distance < 30) {
             switch (sprite.id) {
               case 'robot':
-                router.push('/ai');
+                router.push('/ai')
                 break;
               case 'bank':
                 router.push('/bank');
@@ -107,6 +153,14 @@ const GameCanvas = forwardRef<HTMLCanvasElement>((_, ref) => {
 
       // Handle movement
       const handleKeyDown = (e: KeyboardEvent) => {
+        if (showChat) {
+          // If chat is open, don't process movement
+          if (e.key === 'Escape') {
+            setShowChat(false);
+          }
+          return;
+        }
+
         const state = stateRef.current;
         let newX = state.player.x;
         let newY = state.player.y;
@@ -123,6 +177,9 @@ const GameCanvas = forwardRef<HTMLCanvasElement>((_, ref) => {
             break;
           case 'ArrowRight':
             newX += state.gridSize;
+            break;
+          case 'Escape':
+            setShowChat(false);
             break;
         }
 
@@ -207,7 +264,7 @@ const GameCanvas = forwardRef<HTMLCanvasElement>((_, ref) => {
         window.removeEventListener('resize', updateCanvasSize);
       };
     });
-  }, [ref, router]);
+  }, [ref, router, showChat]);
 
   // Fallback colors for sprites
   const getFallbackColor = (id: string): string => {
@@ -223,7 +280,12 @@ const GameCanvas = forwardRef<HTMLCanvasElement>((_, ref) => {
     }
   };
 
-  return <canvas ref={ref} className="pixel-art" />;
+  return (
+    <div className="relative">
+      <canvas ref={ref} className="pixel-art" />
+     
+    </div>
+  );
 });
 
 GameCanvas.displayName = 'GameCanvas';
