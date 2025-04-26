@@ -44,6 +44,35 @@ export default function ChatPage() {
     }
   }, [messages]);
 
+  // Function to format message text properly
+  const formatMessageText = (text: string) => {
+    // Check if text contains bullet points or numbered lists
+    const hasBulletPoints = /(\n[-*•]\s|\n\d+\.\s)/g.test(text);
+    
+    if (hasBulletPoints) {
+      // Split by newlines and process each line
+      return text.split('\n').map((line, i) => {
+        // Check if this line is a bullet point or numbered list item
+        const isBulletPoint = /^[-*•]\s/.test(line.trim());
+        const isNumberedPoint = /^\d+\.\s/.test(line.trim());
+        
+        if (isBulletPoint || isNumberedPoint) {
+          return (
+            <div key={i} className="flex">
+              <span className="mr-2">{line.trim().match(/^[-*•\d.]+\s/)?.[0]}</span>
+              <span>{line.trim().replace(/^[-*•\d.]+\s/, '')}</span>
+            </div>
+          );
+        }
+        // Return regular text line
+        return <div key={i}>{line}</div>;
+      });
+    }
+    
+    // Regular paragraph text
+    return text;
+  };
+
   const handleSend = async () => {
     if (!input.trim()) return;
 
@@ -104,7 +133,7 @@ export default function ChatPage() {
 
       {/* Chat container with fixed height */}
       <main className="flex-1 container mx-auto p-4 max-w-2xl flex flex-col">
-        <div className="flex-1 rounded-lg shadow-sm  flex flex-col h-full overflow-hidden">
+        <div className="flex-1 rounded-lg shadow-sm flex flex-col h-full overflow-hidden">
           {/* Messages area with constrained height and proper scroll */}
           <div className="flex-1 overflow-hidden relative">
             <div className="absolute inset-0 p-4 overflow-y-auto space-y-3 scrollbar-thin">
@@ -141,7 +170,9 @@ export default function ChatPage() {
                         ? 'bg-gray-100 text-gray-800 rounded-tl-none'
                         : 'bg-indigo-600 text-white rounded-tr-none'
                     }`}>
-                      <p className="text-sm leading-relaxed">{displayText}</p>
+                      <div className="text-sm leading-relaxed space-y-1">
+                        {isBot ? formatMessageText(displayText) : displayText}
+                      </div>
                       {isBot && displayLength < msg.text.length && (
                         <div className="absolute bottom-2 right-2 w-2 h-2 bg-gray-400 rounded-full animate-pulse" />
                       )}
@@ -171,15 +202,15 @@ export default function ChatPage() {
               {isLoading && (
                 <div className="flex justify-start items-end gap-2">
                   <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center shrink-0">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="w-5 h-5 text-gray-600"
-                    >
-                      <path d="M7.5 3.375c0-1.036.84-1.875 1.875-1.875h.375a3.75 3.75 0 013.75 3.75v1.875C13.5 8.161 14.34 9 15.375 9h1.875A3.75 3.75 0 0121 12.75v3.375C21 17.16 20.16 18 19.125 18h-9.75A1.875 1.875 0 017.5 16.125V3.375z" />
-                      <path d="M15 5.25a5.23 5.23 0 00-1.279-3.434 9.768 9.768 0 016.963 6.963A5.23 5.23 0 0017.25 7.5h-1.875A.375.375 0 0115 7.125V5.25zM4.875 6H6v10.125A3.375 3.375 0 009.375 19.5H16.5v1.125c0 1.035-.84 1.875-1.875 1.875h-9.75A1.875 1.875 0 013 20.625V7.875C3 6.839 3.84 6 4.875 6z" />
-                    </svg>
+                  <svg 
+  xmlns="http://www.w3.org/2000/svg" 
+  viewBox="0 0 24 24"
+  fill="currentColor"
+  className="w-6 h-6 text-gray-500"
+>
+  <path d="M13 7.5a1 1 0 11-2 0 1 1 0 012 0zm-3 3a1 1 0 11-2 0 1 1 0 012 0zm4 0a1 1 0 11-2 0 1 1 0 012 0zm-3 3a1 1 0 11-2 0 1 1 0 012 0z"/>
+  <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zM4 12a8 8 0 0116 0H4z" clip-rule="evenodd"/>
+</svg>
                   </div>
                   <div className="bg-gray-100 text-gray-800 p-4 rounded-2xl rounded-tl-none max-w-[80%]">
                     <div className="flex space-x-1.5">
@@ -195,7 +226,7 @@ export default function ChatPage() {
           </div>
 
           {/* Input area fixed at bottom */}
-          <div className="p-4 border-t border-gray-200">
+          <div className="p-4 border-t border-gray-200 bg-white">
             <div className="flex space-x-2">
               <input
                 value={input}

@@ -8,6 +8,16 @@ CORS(app)
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 #print("API KEY:", os.environ.get("GROQ_API_KEY"))
 
+prompt=''' You are a helpful assistant.
+You will be given a question and you will answer it as best as you can. 
+If you do not know the answer, say 'I don't know'. 
+If the question is not clear, ask for clarification.
+you are a educational assistant and you are here to help the user learn. your name is Brady
+If user ask about the team and members, say our team is Fortiv our team member is Abishake,Emmanuel, Gokul Priyan,Kiran and you
+if user ask explain your project , say our project have a multiple use we have a bank,games, AI assistant 
+if you give a response if there is a point in the response, give a point in the response
+
+'''
 
 @app.route('/chat', methods=['POST'])
 def chat():
@@ -21,7 +31,7 @@ def chat():
             messages=[
                 {
                     "role": "system",
-                    "content": "You are a helpful AI assistant. Keep responses concise."
+                    "content": prompt
                 },
                 {
                     "role": "user",
