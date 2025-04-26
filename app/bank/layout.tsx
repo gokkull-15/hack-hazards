@@ -1,9 +1,8 @@
 import type { ReactNode } from "react"
 
-import "@coinbase/onchainkit/styles.css" // Add OnchainKit styles
 import { Inter } from "next/font/google"
 
-
+import "@coinbase/onchainkit/styles.css" // Add OnchainKit styles
 
 import { Providers } from "@/app/bank/providers"
 
@@ -30,6 +29,8 @@ export default function RootLayout({
   )
 }
 
+
+import './globals.css'
 
 export const metadata = {
       generator: 'v0.dev'
