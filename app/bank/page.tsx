@@ -1,6 +1,6 @@
 "use client"
-
-import { useState, useEffect, useRef, useCallback } from "react"
+import "./styles.css"
+import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -11,7 +11,6 @@ import { TransactionDefault } from "@coinbase/onchainkit/transaction"
 import { parseEther } from "viem"
 
 // Constants
-const RECIPIENT_ADDRESS = "0xE8C42b0c182d31F06d938a97a969606A7731fFda"
 const BASE_SEPOLIA_CHAIN_ID = 84532
 
 export default function TwitchStreamPage() {
@@ -19,6 +18,7 @@ export default function TwitchStreamPage() {
   const [customAmount, setCustomAmount] = useState("")
   const [isCustomAmount, setIsCustomAmount] = useState(false)
   const [message, setMessage] = useState("")
+  const [recipientAddress, setRecipientAddress] = useState("")
   const [showTipOverlay, setShowTipOverlay] = useState(false)
   const [tipOverlayData, setTipOverlayData] = useState<{
     from: string
@@ -32,6 +32,9 @@ export default function TwitchStreamPage() {
 
   const { toast } = useToast()
   const { address } = useAccount()
+
+  // Validate Ethereum address
+  const isValidAddress = (addr: string) => /^0x[a-fA-F0-9]{40}$/.test(addr)
 
   // Cleanup timeout for tip overlay
   useEffect(() => {
@@ -65,6 +68,10 @@ export default function TwitchStreamPage() {
         setIsCustomAmount(true)
       }
     }
+  }, [])
+
+  const handleRecipientAddressChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setRecipientAddress(e.target.value)
   }, [])
 
   const handleTipSuccess = useCallback((txHash: string) => {
@@ -135,39 +142,39 @@ export default function TwitchStreamPage() {
     [toast, handleTipSuccess]
   )
 
-  const calls = [
+  const calls = recipientAddress && isValidAddress(recipientAddress) ? [
     {
-      to: RECIPIENT_ADDRESS,
+      to: recipientAddress,
       value: parseEther(actualAmount),
       data: message
         ? `0x${Buffer.from(message || `Tip`, "utf8").toString("hex")}`
         : "0x",
     },
-  ]
+  ] : []
 
   return (
-    <Card className="w-full max-w-2xl mx-auto mt-6">
-      <CardContent className="space-y-4">
+    <Card className="w-full max-w-2xl mx-auto mt-6 bg-white dark:bg-gray-800 shadow-lg">
+      <CardContent className="space-y-6 p-6">
         {showTipOverlay && tipOverlayData && (
-          <div className="relative w-full bg-black rounded-md overflow-hidden mb-4">
+          <div className="relative w-full bg-black rounded-lg overflow-hidden mb-4">
             <div className="w-full bg-black/80 text-white p-4 rounded-lg border border-blue-500 animate-slide-down">
-              <div className="flex items-center gap-2">
-                <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-lg">
                   {address?.slice(0, 2)}
                 </div>
-                <div>
-                  <div className="font-bold text-lg flex items-center gap-2">
+                <div className="flex-1">
+                  <div className="font-bold text-xl flex items-center gap-2">
                     <span>
                       {address?.slice(0, 6)}...{address?.slice(-4)}
                     </span>
                     <span className="text-blue-400">tipped {tipOverlayData.amount} ETH</span>
                   </div>
-                  <div className="text-sm opacity-80">{tipOverlayData.message}</div>
+                  <div className="text-sm opacity-80 mt-1">{tipOverlayData.message}</div>
                   <a
                     href={`https://sepolia-explorer.base.org/tx/${tipOverlayData.txHash}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-xs flex items-center gap-1 text-blue-500 hover:underline"
+                    className="text-xs flex items-center gap-1 text-blue-500 hover:underline mt-1"
                   >
                     <ExternalLink className="h-3 w-3" />
                     View transaction
@@ -178,12 +185,28 @@ export default function TwitchStreamPage() {
           </div>
         )}
 
-        <div className="text-xs text-muted-foreground mb-2">
-          All tips go to: {RECIPIENT_ADDRESS.slice(0, 6)}...{RECIPIENT_ADDRESS.slice(-4)}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            Recipient Wallet Address
+          </label>
+          <Input
+            placeholder="Enter recipient's wallet address (0x...)"
+            value={recipientAddress}
+            onChange={handleRecipientAddressChange}
+            className="w-full"
+          />
+          {recipientAddress && !isValidAddress(recipientAddress) && (
+            <p className="text-xs text-red-500 mt-1">Please enter a valid Ethereum address</p>
+          )}
+          {recipientAddress && isValidAddress(recipientAddress) && (
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Sending to: {recipientAddress.slice(0, 6)}...{recipientAddress.slice(-4)}
+            </p>
+          )}
         </div>
 
         {/* Tip Options */}
-        <div className="space-y-3">
+        <div className="space-y-4">
           <div className="flex flex-wrap gap-2">
             {["0.01", "0.05", "0.1", "0.5", "1"].map((amount) => (
               <Button
@@ -191,6 +214,7 @@ export default function TwitchStreamPage() {
                 variant={!isCustomAmount && tipAmount === amount ? "default" : "outline"}
                 size="sm"
                 onClick={() => handleSelectPresetAmount(amount)}
+                className="transition-all duration-200"
               >
                 {amount} ETH
               </Button>
@@ -199,7 +223,7 @@ export default function TwitchStreamPage() {
               variant={isCustomAmount ? "default" : "outline"}
               size="sm"
               onClick={() => setIsCustomAmount(true)}
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 transition-all duration-200"
             >
               <Edit3 className="h-3 w-3" />
               Custom
@@ -207,7 +231,7 @@ export default function TwitchStreamPage() {
           </div>
 
           {isCustomAmount && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <Input
                 type="text"
                 placeholder="Enter amount"
@@ -216,7 +240,7 @@ export default function TwitchStreamPage() {
                 className="max-w-[150px]"
                 autoFocus
               />
-              <span className="text-sm font-medium">ETH</span>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">ETH</span>
             </div>
           )}
         </div>
@@ -226,9 +250,10 @@ export default function TwitchStreamPage() {
             placeholder="Add a message (optional)"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            maxLength={200}
             className="w-full"
           />
-          <div className="text-xs text-right mt-1 text-muted-foreground">
+          <div className="text-xs text-right text-gray-500 dark:text-gray-400">
             {message.length}/200 characters
           </div>
 
@@ -237,8 +262,8 @@ export default function TwitchStreamPage() {
               chainId={BASE_SEPOLIA_CHAIN_ID}
               calls={calls}
               onStatus={handleStatus}
-              buttonClassName="bg-primary hover:bg-primary/90 text-primary-foreground py-2 px-4 rounded-md flex items-center justify-center gap-2"
-              buttonDisabled={isSending}
+              buttonClassName="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md flex items-center justify-center gap-2 transition-all duration-200"
+              buttonDisabled={isSending || !isValidAddress(recipientAddress)}
               buttonText={isSending ? "Sending..." : "Send Tip"}
               buttonIcon={<Send className="h-4 w-4" />}
             />
@@ -246,7 +271,7 @@ export default function TwitchStreamPage() {
         </div>
 
         {lastTxHash && (
-          <div className="mt-2 text-xs">
+          <div className="mt-4 text-xs">
             <a
               href={`https://sepolia-explorer.base.org/tx/${lastTxHash}`}
               target="_blank"
@@ -259,7 +284,7 @@ export default function TwitchStreamPage() {
           </div>
         )}
       </CardContent>
-      <CardFooter className="text-sm text-gray-500">
+      <CardFooter className="text-sm text-gray-500 dark:text-gray-400 p-6 pt-0">
         Tips are sent directly to the recipient's wallet.
       </CardFooter>
     </Card>
