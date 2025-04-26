@@ -1,0 +1,167 @@
+/* styles/twitch-tip.css */
+@keyframes slide-down {
+    from {
+      transform: translateY(-20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  .animate-slide-down {
+    animation: slide-down 0.3s ease-out forwards;
+  }
+  
+  /* Main container styling */
+  .max-w-2xl {
+    max-width: 400px !important; /* More compact width like MetaMask */
+    margin: 1rem auto;
+    border-radius: 12px !important;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Card content padding */
+  .p-6 {
+    padding: 1.5rem !important;
+  }
+  
+  /* Input fields styling */
+  .Input {
+    border-radius: 8px !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 0.875rem !important;
+    border: 1px solid #d1d5db !important;
+    background-color: #f9fafb !important;
+  }
+  
+  .Input:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 1px #3b82f6 !important;
+  }
+  
+  /* Buttons styling */
+  .Button {
+    border-radius: 8px !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    padding: 0.5rem 1rem !important;
+    transition: all 0.2s ease !important;
+  }
+  
+  .Button[data-variant="default"] {
+    background-color: #3b82f6 !important;
+    color: white !important;
+  }
+  
+  .Button[data-variant="default"]:hover {
+    background-color: #2563eb !important;
+  }
+  
+  .Button[data-variant="outline"] {
+    border: 1px solid #d1d5db !important;
+    background-color: white !important;
+    color: #4b5563 !important;
+  }
+  
+  .Button[data-variant="outline"]:hover {
+    background-color: #f3f4f6 !important;
+    border-color: #9ca3af !important;
+  }
+  
+  /* Tip overlay styling */
+  .bg-black\/80 {
+    background-color: rgba(0, 0, 0, 0.9) !important;
+  }
+  
+  .border-blue-500 {
+    border-color: #3b82f6 !important;
+  }
+  
+  /* Transaction button styling */
+  .bg-blue-600 {
+    background-color: #3b82f6 !important;
+  }
+  
+  .bg-blue-600:hover {
+    background-color: #2563eb !important;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 640px) {
+    .max-w-2xl {
+      margin: 0.5rem auto;
+      border-radius: 0 !important;
+    }
+    
+    .p-6 {
+      padding: 1rem !important;
+    }
+  }
+  
+  /* Dark mode adjustments */
+  .dark .Input {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+    color: #f3f4f6 !important;
+  }
+  
+  .dark .Button[data-variant="outline"] {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+    color: #f3f4f6 !important;
+  }
+  
+  .dark .Button[data-variant="outline"]:hover {
+    background-color: #374151 !important;
+  }
+  
+  /* Make the component more compact */
+  .space-y-6 > * + * {
+    margin-top: 1rem !important;
+  }
+  
+  .space-y-4 > * + * {
+    margin-top: 0.75rem !important;
+  }
+  
+  .space-y-3 > * + * {
+    margin-top: 0.5rem !important;
+  }
+  
+  .space-y-2 > * + * {
+    margin-top: 0.25rem !important;
+  }
+  
+  /* Adjust font sizes */
+  .text-sm {
+    font-size: 0.8125rem !important;
+  }
+  
+  .text-xs {
+    font-size: 0.75rem !important;
+  }
+  
+  .text-xl {
+    font-size: 1.125rem !important;
+  }
+  
+  /* Tighten up the tip overlay */
+  .h-12 {
+    height: 2.5rem !important;
+  }
+  
+  .w-12 {
+    width: 2.5rem !important;
+  }
+  
+  /* Make the form elements more dense */
+  .flex-wrap {
+    gap: 0.5rem !important;
+  }
+  
+  .max-w-\[150px\] {
+    max-width: 120px !important;
+  }
