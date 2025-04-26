@@ -11,7 +11,7 @@ interface Message {
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([{
-    text: "Hello! I'm your AI assistant. How can I help you today?",
+    text: "Hello! I'm your AI assistant ",
     sender: 'bot',
     timestamp: new Date()
   }]);
