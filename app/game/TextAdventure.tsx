@@ -297,85 +297,89 @@ export default function TypingAdventure() {
   }, [gameStatus, completionTime, walletConnected, submitScore]);
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
-        <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">Typing Adventure</h1>
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 flex flex-col items-center justify-center p-4">
+      <div className="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl shadow-2xl p-8 w-full max-w-md border border-white border-opacity-20">
+        <h1 className="text-4xl font-bold text-center mb-6 text-white">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">Typing Adventure</span>
+        </h1>
         
         {!walletConnected && (
           <div className="text-center mb-6">
             <button
               onClick={connectWallet}
-              className="px-6 py-3 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-colors"
+              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-500 text-white font-medium rounded-lg hover:from-purple-700 hover:to-blue-600 transition-all transform hover:scale-105 shadow-lg"
             >
               Connect Wallet
             </button>
           </div>
         )}
-
+  
         {error && (
-          <div className="text-center text-red-600 mb-4">
+          <div className="text-center text-red-400 bg-red-900 bg-opacity-20 p-3 rounded-lg mb-4">
             {error}
           </div>
         )}
-
+  
         {walletConnected && (
           <>
-            <div className="text-center mb-4">
-              <p className="text-sm text-gray-600">Wallet: {account.slice(0, 6)}...{account.slice(-4)}</p>
+            <div className="text-center mb-4 bg-black bg-opacity-30 rounded-lg p-3">
+              <p className="text-sm text-gray-300">Wallet: <span className="font-mono text-cyan-400">{account.slice(0, 6)}...{account.slice(-4)}</span></p>
               {bestTime > 0 && (
-                <p className="text-sm text-gray-600">Best Time: {bestTime}s</p>
+                <p className="text-sm text-gray-300 mt-1">Best Time: <span className="font-mono text-yellow-400 font-bold">{bestTime}s</span></p>
               )}
             </div>
-
+  
             {gameStatus === 'idle' && (
-              <div className="text-center">
+              <div className="text-center py-8">
                 <button
                   onClick={startGame}
-                  className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                  className="px-8 py-4 bg-gradient-to-r from-green-500 to-teal-400 text-white font-medium rounded-lg hover:from-green-600 hover:to-teal-500 transition-all transform hover:scale-105 shadow-lg animate-pulse"
                 >
                   Start Game
                 </button>
               </div>
             )}
-
+  
             {(gameStatus === 'playing' || gameStatus === 'won' || gameStatus === 'lost') && (
               <>
                 <div className="mb-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-semibold text-gray-700">Time left:</h2>
-                    <span className={`text-2xl font-bold ${timeLeft <= 3 ? 'text-red-500' : 'text-gray-700'}`}>
+                  <div className="flex justify-between items-center mb-4 bg-black bg-opacity-30 rounded-lg p-3">
+                    <h2 className="text-xl font-semibold text-gray-300">Time left:</h2>
+                    <span className={`text-2xl font-bold font-mono ${timeLeft <= 3 ? 'text-red-400 animate-pulse' : 'text-cyan-400'}`}>
                       {timeLeft}s
                     </span>
                   </div>
                   
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-lg font-medium text-gray-800 text-center">
+                  <div className="bg-gray-900 bg-opacity-50 p-6 rounded-lg border border-gray-700 shadow-inner">
+                    <p className="text-lg font-medium text-white text-center tracking-wide leading-relaxed">
                       {words.join(' ')}
                     </p>
                   </div>
                 </div>
-
+  
                 {gameStatus === 'playing' && (
                   <div className="mb-6">
                     <input
                       type="text"
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full text-white px-4 py-3 bg-gray-800 bg-opacity-70 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder-gray-500"
                       placeholder="Type the words here..."
                       autoFocus
                     />
                   </div>
                 )}
-
+  
                 {(gameStatus === 'won' || gameStatus === 'lost') && (
-                  <div className={`text-center py-6 rounded-lg mb-6 ${gameStatus === 'won' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                    <p className="text-2xl font-bold mb-4">
-                      {gameStatus === 'won' ? `You won 🎉 Time: ${completionTime}s` : 'You lost ❌'}
+                  <div className={`text-center py-6 rounded-lg mb-6 ${gameStatus === 'won' ? 'bg-green-900 bg-opacity-30 border border-green-700' : 'bg-red-900 bg-opacity-30 border border-red-700'}`}>
+                    <p className="text-2xl font-bold mb-4 text-white">
+                      {gameStatus === 'won' ? 
+                        <><span className="text-green-400">You won!</span> <span className="text-yellow-400 font-mono">{completionTime}s</span> <span className="text-3xl">🎉</span></> : 
+                        <><span className="text-red-400">You lost</span> <span className="text-3xl">💔</span></>}
                     </p>
                     <button
                       onClick={startGame}
-                      className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                      className={`px-6 py-2 text-white font-medium rounded-lg transition-colors ${gameStatus === 'won' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
                     >
                       Play Again
                     </button>
@@ -383,17 +387,25 @@ export default function TypingAdventure() {
                 )}
               </>
             )}
-
+  
             {leaderboard.length > 0 && (
-              <div className="mt-6">
-                <h2 className="text-xl font-semibold text-gray-700 mb-4">Leaderboard</h2>
-                <ul className="bg-gray-50 p-4 rounded-lg">
+              <div className="mt-8">
+                <h2 className="text-xl font-semibold text-white mb-3 flex items-center">
+                  <span className="mr-2">🏆</span> Leaderboard
+                </h2>
+                <ul className="bg-gray-800 bg-opacity-50 p-4 rounded-lg border border-gray-700">
                   {leaderboard
                     .sort((a, b) => a.completionTime - b.completionTime)
                     .slice(0, 5)
                     .map((score, index) => (
-                      <li key={index} className="text-gray-800 mb-2">
-                        {score.player.slice(0, 6)}...{score.player.slice(-4)}: {score.completionTime}s
+                      <li key={index} className={`flex justify-between items-center py-2 px-3 mb-2 rounded ${index === 0 ? 'bg-yellow-900 bg-opacity-30' : 'bg-gray-700 bg-opacity-30'}`}>
+                        <div className="flex items-center">
+                          <span className="text-gray-400 mr-2">{index + 1}.</span>
+                          <span className="text-gray-300 font-mono">{score.player.slice(0, 6)}...{score.player.slice(-4)}</span>
+                        </div>
+                        <span className={`font-mono font-bold ${index === 0 ? 'text-yellow-400' : index === 1 ? 'text-gray-300' : index === 2 ? 'text-yellow-700' : 'text-gray-400'}`}>
+                          {score.completionTime}s
+                        </span>
                       </li>
                     ))}
                 </ul>
