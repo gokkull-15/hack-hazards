@@ -8,7 +8,7 @@ import { Edit3, ExternalLink, Send } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useAccount } from "@/hooks/use-account"
 import { TransactionDefault } from "@coinbase/onchainkit/transaction"
-import { parseEther } from "viem"
+import { parseEther, type Hex } from "viem"
 
 // Constants
 const BASE_SEPOLIA_CHAIN_ID = 84532
@@ -141,18 +141,36 @@ export default function TwitchStreamPage() {
     },
     [toast, handleTipSuccess]
   )
-
+  const toHex = (str: string): Hex => {
+    if (!str.startsWith('0x')) {
+      return `0x${str}` as Hex
+    }
+    return str as Hex
+  }
+  
+  // Then use it in your calls array
   const calls = recipientAddress && isValidAddress(recipientAddress) ? [
     {
-      to: recipientAddress,
+      to: toHex(recipientAddress),
       value: parseEther(actualAmount),
       data: message
-        ? `0x${Buffer.from(message || `Tip`, "utf8").toString("hex")}`
-        : "0x",
+        ? toHex(Buffer.from(message || `Tip`, "utf8").toString("hex"))
+        : "0x" as Hex,
     },
   ] : []
 
   return (
+
+    <div 
+    className="min-h-screen w-full flex items-center justify-center p-4"
+    style={{
+      backgroundImage: "url('/sprites/bankbg.jpeg')", // Update with your image path
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+      backgroundAttachment: "fixed",
+    }}
+  >
     <Card className="w-full max-w-2xl mx-auto mt-6">
       <CardContent className="space-y-4">
         {showTipOverlay && tipOverlayData && (
@@ -186,7 +204,7 @@ export default function TwitchStreamPage() {
         )}
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label className="text-sm font-medium text-black dark:text-gray-300">
             Recipient Wallet Address
           </label>
           <Input
@@ -240,25 +258,13 @@ export default function TwitchStreamPage() {
         </div>
 
         <div className="space-y-3">
-          <Input
-            placeholder="Add a message (optional)"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            className="w-full"
-          />
-          <div className="text-xs text-right mt-1 text-muted-foreground">
-            {message.length}/200 characters
-          </div>
+         
 
           <div className="flex justify-end">
             <TransactionDefault
               chainId={BASE_SEPOLIA_CHAIN_ID}
               calls={calls}
               onStatus={handleStatus}
-              buttonClassName="bg-primary hover:bg-primary/90 text-primary-foreground py-2 px-4 rounded-md flex items-center justify-center gap-2"
-              buttonDisabled={isSending || !isValidAddress(recipientAddress)}
-              buttonText={isSending ? "Sending..." : "Send Tip"}
-              buttonIcon={<Send className="h-4 w-4" />}
             />
           </div>
         </div>
@@ -281,5 +287,6 @@ export default function TwitchStreamPage() {
         Tips are sent directly to the recipient's wallet.
       </CardFooter>
     </Card>
+    </div>
   )
 }
